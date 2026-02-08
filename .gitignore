@@ -1,2 +1,7 @@
 # Ignore raw data files
 data/raw/yelp/
+data/processed/
+
+# Allow folder structure to exist
+!data/raw/yelp/.gitkeep
+!data/processed/.gitkeep
