@@ -1,3 +1,6 @@
+# Virtual Environment
+.venv/
+
 # Ignore raw data files
 data/raw/yelp/
 data/processed/
