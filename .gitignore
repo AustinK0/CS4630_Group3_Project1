@@ -2,8 +2,7 @@
 .venv/
 
 # Ignore raw data files
-data/raw/yelp
-data/raw/yelp/
+data/raw/
 data/processed/
 
 # Allow folder structure to exist
