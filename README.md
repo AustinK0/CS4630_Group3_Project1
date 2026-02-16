@@ -12,5 +12,5 @@
 - Hidden through `.gitignore` because the datasets are too large for GitHub
 
 ### How to Run
-1. Install needed packages (pandas, etc.)
+1. Install needed packages (pandas, json, os, etc.)
 2. Run notebooks in order
