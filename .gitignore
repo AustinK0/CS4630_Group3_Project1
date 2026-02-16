@@ -2,8 +2,9 @@
 .venv/
 
 # Ignore raw data files
+data/raw/yelp
 data/raw/yelp/
-#data/processed/
+data/processed/
 
 # Allow folder structure to exist
 !data/raw/yelp/.gitkeep
