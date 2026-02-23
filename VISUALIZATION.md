@@ -43,6 +43,18 @@ Outputs are saved in:
 - **Method:** Map business categories into restaurant / retail / services, then plot a category-by-group heatmap.
 - **Interpretation:** The heatmap highlights how complaint categories distribute across nearby business groups. Higher intensity in a specific cell means that complaints of that category are more frequent near that business group. For example, if “Public Safety” is darker near “services,” it may indicate that those areas experience more safety related complaints relative to retail or restaurants.
 
+### 5) Sentiment by Complaint Category
+- **File:** outputs/visualizations/sentiment_by_category.png
+- **Purpose:** Show the average sentiment of complaints across the most common categories.
+- **Method:** Aggregate VADER sentiment scores by complaint category (top 10 by count) and plot the mean sentiment per category.
+- **Interpretation:** Categories with lower average sentiment indicate more negative language and potentially higher frustration or urgency. Categories with higher average sentiment may reflect more neutral or informational complaints. This helps identify which complaint types are most emotionally charged.
+
+### 6) Severity Distribution by Business Group
+- **File:** outputs/visualizations/severity_by_business_group.png
+- **Purpose:** Compare how complaint severity varies across nearby business groups.
+- **Method:** Group complaints by business group (restaurants, retail, services) and plot the count of severity labels in a stacked bar chart.
+- **Interpretation:** Differences in the stacked bars indicate whether certain business contexts attract more severe complaints. A higher share of “High Severity” in a group suggests a need for targeted attention in those areas.
+
 
 ## How to Reproduce
 Open and run:
@@ -56,3 +68,5 @@ The notebook loads the integrated dataset, generates the plots, and saves them t
 - Business density is positively related to complaint frequency, consistent with higher activity and exposure.
 - Clustering reveals a few dominant complaint themes alongside several smaller, specialized clusters.
 - Complaint patterns differ by nearby business group, suggesting local business context influences the type of issues reported.
+- Sentiment analysis adds an emotional lens, highlighting categories with more negative language.
+- Severity comparisons by business group help prioritize where more serious complaints concentrate.
