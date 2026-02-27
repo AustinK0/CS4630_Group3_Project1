@@ -1,307 +1,225 @@
-# NYC 311 Data Cleaning Summary
+
+# Philly 311 Data Cleaning Summary
+
 
 ## Executive Overview
-Successfully implemented a comprehensive data cleaning pipeline using **rule-based and classical ML/statistical methods** for the NYC 311 Service Requests dataset in accordance with CS 4630 Project 1 requirements.
+Implemented a comprehensive data cleaning pipeline using rule-based and classical ML/statistical methods for the Philly 311 Service Requests dataset.
 
 **Key Results:**
-- Original: 13,262 records → Cleaned: 10,100 records
-- Records removed: 3,162 (23.8% - justified deduplication & validation)
-- Complaint types normalized: 122 → 11 standardized categories
-- Geographic coverage: 100% valid NYC coordinates
-- Data quality: Complete standardization, deduplication, and validation
+- Original: (see raw file) → Cleaned: 245,810 records
+- Columns standardized to match Philly 311 schema
+- Service/complaint types grouped into broader categories (e.g., ENVIRONMENTAL, PUBLIC SAFETY, INFRASTRUCTURE, OTHER)
+- Geographic coverage: 100% valid Philadelphia coordinates
+- Data quality: Standardization, deduplication, and validation completed
 
 ---
 
 ## Detailed Cleaning Methods
 
+
 ### 1. **Column Standardization** ✓
 **Rule-Based Implementation:**
 - Converted all column names to lowercase
 - Replaced spaces with underscores
-- Removed special characters using regex: `str.replace(r"[^\w_]", "", regex=True)`
+- Removed special characters
 
 **Justification:** Ensures consistent naming for analysis and prevents errors in field access.
 
-**Result:** 45 standardized columns ready for analysis
+**Result:** 10 standardized columns ready for analysis:
+  - service_request_id
+  - requested_datetime
+  - service_name
+  - service_code
+  - address
+  - lat
+  - lon
+  - status
+  - agency_responsible
+  - service_category
 
 ---
 
-### 2. **Complaint Type Normalization** ✓
-**Rule-Based Domain Mapping:**
-- Analyzed all 122 unique complaint types
-- Applied semantic grouping based on complaint domain knowledge
-- Created 11 normalized categories:
-  - **PARKING** (blocked driveway, blocked sidewalk, parking signs, hydrants)
-  - **NOISE** (residential, commercial, street/sidewalk, vehicle)
-  - **STREET_CONDITION** (pothole, curb, pavement)
-  - **TRAFFIC** (signals, control)
-  - **GRAFFITI** (public, private)
-  - **SANITATION** (dirty conditions, waste containers)
-  - **WATER_UTILITY** (quality, systems)
-  - **WEATHER** (snow, ice)
-  - Plus 3 specific categories (HEAT/HOT WATER, PLUMBING, PAINT/PLASTER)
 
-**Justification:** 
-- Reduces dimensionality for ML/clustering (122 → 11)
+### 2. **Service/Complaint Type Normalization** ✓
+**Rule-Based Domain Mapping:**
+- Analyzed all unique service_name and service_code values
+- Grouped into broader categories using domain knowledge:
+  - **ENVIRONMENTAL** (graffiti removal, illegal dumping, sanitation, etc.)
+  - **PUBLIC SAFETY** (abandoned vehicle, police, dangerous building, etc.)
+  - **INFRASTRUCTURE** (street defect, street light outage, stop sign repair, etc.)
+  - **OTHER** (information request, license complaint, opioid response, etc.)
+
+**Justification:**
+- Reduces dimensionality for ML/clustering
 - Enables meaningful pattern detection
 - Groups semantically similar complaints
 - Improves statistical power for analysis
 
-**Result:** 
-- PARKING: 2,610 records (25.8%)
-- OTHER: 2,583 records (25.6%)  
-- HEAT/HOT WATER: 1,501 records (14.9%)
-- NOISE: 1,260 records (12.5%)
+**Result:**
+- ENVIRONMENTAL: e.g., graffiti removal, illegal dumping
+- PUBLIC SAFETY: e.g., abandoned vehicle, police
+- INFRASTRUCTURE: e.g., street defect, street light outage
+- OTHER: e.g., information request, license complaint
 
 ---
+
 
 ### 3. **Deduplication: Exact & Near-Duplicate Detection** ✓
 
 #### **Exact Duplicates:**
-- Removed rows with duplicate `unique_key` values
-- Records removed: **0** (no exact duplicates found)
+- Removed rows with duplicate `service_request_id` values
+- Records removed: (see cleaning notebook for count)
 
-#### **Near-Duplicate Detection (Advanced Statistical Method):**
-**Rule-Based Algorithm:**
-```
-IF (distance < 50 meters) AND
-   (time_difference < 24 hours) AND
-   (same_complaint_type)
-THEN mark as near-duplicate
-```
-
-**Implementation Details:**
-- **Distance Metric:** Haversine formula (geodetic calculation)
-  - Earth radius: 6,371,000 meters
-  - Accounts for spherical Earth geometry
-  - Threshold: 50m (accommodates GPS variance + street-level specificity)
-
-- **Temporal Window:** 24 hours
-  - Complaints within 24h at same location likely same incident
-  - Balances removal of redundancy with legitimate complaint variations
-
-- **Semantic Matching:** Same problem type required
-  - Prevents removing legitimate different complaints nearby
+#### **Near-Duplicate Detection:**
+Applied rule-based logic to identify likely duplicate requests based on location (lat/lon), time, and service type. Used Haversine distance (<50m) and 24-hour window for near-duplicate detection.
 
 **Justification:**
-- Multiple complaints at same location within 24 hours represent likely same event
-- 50m radius: balances GPS accuracy (±5-10m) with street-block specificity
+- Multiple complaints at same location within 24 hours likely represent the same event
+- 50m radius: balances GPS accuracy with street-level specificity
 - Preserves genuine different complaints in same area
-- Reduces noise while maintaining data integrity
 
-**Result:** **2,980 near-duplicates removed** (22.5% of dataset)
+**Result:** See cleaning notebook for details
 
 ---
+
 
 ### 4. **Location Cleaning & Geospatial Validation** ✓
 
 #### **Coordinate Validation:**
-**Rule-Based Bounding Box Method:**
-- Valid latitude: 40.5° to 40.9°N (NYC bounds)
-- Valid longitude: -74.3° to -73.7°W (NYC bounds)
+- Valid latitude: 39.87° to 40.14°N (Philadelphia bounds)
+- Valid longitude: -75.28° to -74.96°W (Philadelphia bounds)
 
 #### **Statistical Outlier Detection:**
-**IQR Method (Interquartile Range):**
-- Calculated Q1, Q3, IQR for latitude and longitude
-- Outliers: values outside [Q1 - 1.5*IQR, Q3 + 1.5*IQR]
-- **Longitude outliers detected:** 589 records
-
-#### **ZIP Code Standardization:**
-- Extracted 5-digit ZIP codes from text
-- Domain imputation: Missing ZIPs filled with borough median values
-  - Statistically sound approach
-  - Preserves geographic reasoning
+- Used IQR method for latitude and longitude to detect outliers
+- Outliers and invalid coordinates removed
 
 **Result:**
-- Invalid coordinates removed: **182 records**
-- Remaining dataset 100% within valid NYC bounds
-- Latitude mean: 40.73°, Std: 0.088°
-- Longitude mean: -73.92°, Std: 0.076°
+- All records have valid Philadelphia coordinates
 
 ---
 
-### 5. **Missing Value Handling: Four-Tier Strategy** ✓
 
-#### **Tier 1 - Drop Rows (Critical Fields):**
-Fields: `unique_key`, `created_date`, `latitude`, `longitude`
-- Reason: Essential for all analysis; cannot be reliably imputed
-- Rows dropped: **0** (already handled by deduplication/validation)
+### 5. **Missing Value Handling** ✓
 
-#### **Tier 2 - Fill Categorical Fields (Mode/Domain-based):**
-| Field | Fill Value | Rationale |
-|-------|-----------|-----------|
-| problem_formerly_complaint_type | 'UNKNOWN' | Default for missing complaint type |
-| agency | 'VARIOUS' | Multiple agencies possible |
-| location_type | 'UNSPECIFIED' | Unknown location category |
-| borough | 'UNSPECIFIED' | Unknown geographic area |
-| status | 'OPEN' | Most common status |
-| complaint_type_normalized | 'OTHER' | Default normalized category |
-
-#### **Tier 3 - Fill Text Fields (Literal Fill):**
-- `problem_detail_formerly_descriptor` → 'No description provided'
-- `additional_details` → 'No description provided'
-- Reason: Distinguishes missing (NaN) from empty string
-
-#### **Tier 4 - Domain/Statistical Imputation:**
-- `incident_zip`: Imputed with **borough median ZIP code**
-  - Statistically sound approach
-  - Preserves geographic relationship
-  - Prevents loss of borough information
-
-**Outcome:**
-- Remaining missing values in sparse fields only:
-  - facility_type (99.97% sparse - park-specific)
-  - bridge/highway fields (99%+ sparse - road-specific)
-  - vehicle_type (95.8% sparse - vehicle-specific)
-  - taxi fields (99%+ sparse - taxi-specific)
-- **These are appropriately left sparse** as they're only applicable to specific complaint types
+- Dropped rows with missing critical fields: service_request_id, requested_datetime, lat, lon
+- Filled missing categorical fields (e.g., status, agency_responsible) with mode or domain-appropriate values
+- Filled missing text fields with 'No description provided' where applicable
+- Some fields (e.g., service_code) left missing if not critical for analysis
 
 ---
+
 
 ### 6. **Data Type Conversion** ✓
 **Efficiency Optimization:**
 
-| Data Type | Columns | Memory Benefit |
-|-----------|---------|----------------|
-| `datetime64[us]` | created_date, closed_date, due_date, resolution_action_updated_date | 8 bytes/record |
-| `category` | agency, agency_name, borough, status, complaint_type, location_type, city | ~50% reduction |
-| `float64` | latitude, longitude, coordinates, zip codes | Efficient numeric ops |
-| `str/object` | Text fields (descriptions, addresses) | Minimal compression opportunity |
+| Data Type | Columns |
+|-----------|---------|
+| datetime64 | requested_datetime |
+| category | status, agency_responsible, service_category |
+| float64 | lat, lon |
+| str/object | address, service_name, service_code |
 
-**Result:** Final memory usage: **16.04 MB** (efficient for large-scale analysis)
+**Result:** Efficient memory usage for large-scale analysis
 
 ---
+
 
 ### 7. **Outlier Detection: Statistical Methods** ✓
 
-**IQR Method Applied:**
-- Calculated quantiles (Q1, Q3, IQR)
-- Outlier bounds: [Q1 - 1.5×IQR, Q3 + 1.5×IQR]
-- **Latitude outliers:** 0 detected
-- **Longitude outliers:** 589 detected
-
-**Domain-Based Validation:**
-- Cross-checked all outliers against NYC geographic bounds
-- Removed 182 records outside valid coordinate range
+- Applied IQR method to latitude and longitude
+- Removed records outside valid Philadelphia bounds
 
 ---
+
 
 ## Data Quality Metrics
 
 ### 1. **Completeness**
-- Complete rows (0 missing): 0% (sparse fields legitimately empty)
-- Critical fields complete: 100%
-- **Assessment:** ✓ Meets requirements
+- All critical fields present (service_request_id, requested_datetime, lat, lon)
+- Some non-critical fields may have missing values
 
 ### 2. **Validity**
-- Valid NYC coordinates: 10,100/10,100 (100%)
-- Valid date range: 10,100/10,100 (100%)
-- **Assessment:** ✓ All records validated
+- All coordinates within Philadelphia bounds
+- All dates valid and in ISO format
 
 ### 3. **Uniqueness**
-- Unique keys: 10,100/10,100 (100%)
-- No duplicate identifiers
-- **Assessment:** ✓ Perfect uniqueness
+- Unique service_request_id for each record
 
 ### 4. **Consistency**
-- Column names: Standardized ✓
-- Complaint types: Normalized to 11 categories ✓
-- Dates: ISO format ✓
-- Coordinates: Validated range ✓
-- **Assessment:** ✓ Complete consistency
+- Column names standardized
+- Service/complaint types normalized
+- Dates in ISO format
+- Coordinates validated
 
 ### 5. **Coverage**
-- Time span: Feb 4-6, 2026 (3 days of recent data)
-- Boroughs: 5/5 (Manhattan, Brooklyn, Queens, Bronx, Staten Island)
-- Agencies: 13 unique agencies
-- Complaint categories: 11 standardized categories
-
-**Distribution:**
-- Brooklyn: 3,252 (32.2%)
-- Queens: 2,409 (23.8%)
-- Bronx: 2,117 (21.0%)
-- Manhattan: 1,893 (18.7%)
-- Staten Island: 429 (4.2%)
+- City-wide coverage for Philadelphia
+- Multiple agencies and service categories represented
 
 ---
+
 
 ## Algorithm Justifications
 
 ### Why Haversine Distance for Deduplication?
-- **Accuracy:** Models Earth's spherical geometry (vs. Euclidean which is flat)
-- **Relevance:** Commonly used in GIS and geospatial analysis
-- **Interpretability:** Produces real-world distances in meters
-- **Alternative considered:** K-d tree clustering - rejected due to complexity vs. simple rules needed
+- Models Earth's spherical geometry for accurate distance calculation
+- Commonly used in GIS and geospatial analysis
 
 ### Why 50 Meters?
-- **GPS accuracy mean error:** ±5-10 meters (typical smartphone)
-- **Street block width in NYC:** ~50-80 meters
-- **Tradeoff:** Balances GPS noise (keep) vs. different streets (remove)
-- **Validation:** Manually spot-checked a sample of 50m-radius clusters - all were same physical location
+- GPS accuracy mean error: ±5-10 meters
+- Street block width in Philadelphia: ~50-80 meters
+- Balances GPS noise vs. different streets
 
 ### Why 24 Hours?
-- **Common practice:** NYPD standard for duplicate investigation lookback
-- **Incident scope:** Most incidents resolved or re-reported within 24h
-- **Temporal variance:** Allows for time zone and system delays
-- **Data observation:** Complaint clustering shows 24h coherence
+- Standard for duplicate investigation lookback
+- Most incidents resolved or re-reported within 24h
 
-### Why Borough-Median Imputation?
-- **Statistical validity:** Median is robust to outliers
-- **Geographic reasoning:** ZIP codes cluster by borough
-- **Preservation:** Avoids losing geographic information
-- **Alternative rejected:** Mean - too influenced by sparse data
 
 ---
+
 
 ## Outputs
 
 ### Files Generated:
-1. **nyc_311_cleaned.csv** (10,100 rows × 45 columns)
-   - Clean, deduplicated, validated dataset
-   - Ready for analysis and ML pipelines
-   - Location: `data/processed/nyc_311_cleaned.csv`
+1. **philly_311_cleaned.csv** (245,810 rows × 10 columns)
+  - Clean, deduplicated, validated dataset
+  - Ready for analysis and ML pipelines
+  - Location: `data/raw/philly_311_cleaned.csv`
 
-2. **CLEANING_DOCUMENTATION.txt**
-   - Detailed documentation of all cleaning steps
-   - Decision justifications
-   - Data quality metrics
-   - Location: `data/processed/CLEANING_DOCUMENTATION.txt`
-
-3. **data_cleaning.ipynb** (Jupyter Notebook)
-   - Complete reproducible cleaning pipeline
-   - Documented methods with explanations
-   - Quality assurance metrics inline
-   - Location: `notebooks/data_cleaning.ipynb`
+2. **data_cleaning.ipynb** (Jupyter Notebook)
+  - Complete reproducible cleaning pipeline
+  - Documented methods with explanations
+  - Quality assurance metrics inline
+  - Location: `notebooks/data_cleaning.ipynb`
 
 ---
+
 
 ## Key Statistics
 
 | Metric | Value |
 |--------|-------|
-| Original records | 13,262 |
-| Final records | 10,100 |
-| Records removed (%) | 3,162 (23.8%) |
-| Exact duplicates | 0 |
-| Near-duplicates | 2,980 |
-| Invalid coordinates | 182 |
-| Complaint types normalized | 122 → 11 |
-| Complete rows | 0 (sparse fields legitimate) |
+| Final records | 245,810 |
+| Columns | 10 |
+| Exact duplicates removed | See notebook |
+| Near-duplicates removed | See notebook |
+| Invalid coordinates removed | See notebook |
+| Service/complaint types normalized | Yes |
 | Valid coordinates (%) | 100% |
 | Unique identifiers (%) | 100% |
-| Memory usage | 16.04 MB |
+| Memory usage | Efficient |
 
 ---
+
 
 ## Compliance with Project Requirements
 
 ✓ **Standardize column names** - Implemented with lowercase + underscore + special char removal
-✓ **Normalize complaint types** - Rule-based mapping to 11 semantic categories  
+✓ **Normalize service/complaint types** - Rule-based mapping to broad categories
 ✓ **Clean location fields** - Haversine validation + bounding box + statistical outlier detection
-✓ **Deduplicate records** - Both exact (0 found) and near-duplicate (2,980 removed) with clear rules
-✓ **Handle missing values** - Four-tier documented strategy with justifications
+✓ **Deduplicate records** - Both exact and near-duplicate with clear rules
+✓ **Handle missing values** - Documented strategy with justifications
 ✓ **Documented strategies** - All decisions explained with statistical/domain justification
-✓ **Classical ML/Statistical methods** - Haversine distance, IQR method, median imputation, categorical encoding
+✓ **Classical ML/Statistical methods** - Haversine distance, IQR method, categorical encoding
 ✓ **Rule-based methods** - Domain mapping, bounding boxes, temporal windows
 ✓ **Data ready for analysis** - Geographic, temporal, categorical, and numeric dimensions prepared
 
