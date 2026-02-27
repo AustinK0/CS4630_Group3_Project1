@@ -26,3 +26,6 @@ In this project, we want to integrate messy structured public service data with 
      6. yelp_category_normalization.ipynb
      7. integration_pipeline.ipynb
      8. analysis_visualization.ipynb 
+
+### How to Comprehend Results
+add here 
