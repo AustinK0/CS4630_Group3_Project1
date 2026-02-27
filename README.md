@@ -2,16 +2,20 @@
 
 ## Overview
 In this project, we want to integrate messy structured public service data with large-scale unstructured business data to uncover meaningful urban patterns. The goal is to build a pipeline that transforms raw data into a clean and integrated dataset for urban complaint analysis.
+## Overview
+In this project, we want to integrate messy structured public service data with large-scale unstructured business data to uncover meaningful urban patterns. The goal is to build a pipeline that transforms raw data into a clean and integrated dataset for urban complaint analysis.
 
 ### Datasets
 - Philly 311 Service Requests (CSV)
 - Yelp Open Dataset (JSON)
+- Here's the link to the datasets - (https://falconbgsu-my.sharepoint.com/my?id=%2Fpersonal%2Flmoraa%5Fbgsu%5Fedu%2FDocuments%2Fraw&ga=1)
 - Here's the link to the datasets - (https://falconbgsu-my.sharepoint.com/my?id=%2Fpersonal%2Flmoraa%5Fbgsu%5Fedu%2FDocuments%2Fraw&ga=1)
 
 ### Folder Structure
 - `data/raw/`: Original datasets, filenames **must** be `philly_311_raw.csv` and `yelp_academic_dataset_business.json`
 - `data/processed/`: Cleaned datasets
 - Hidden through `.gitignore` because the datasets are too large for GitHub
+- notebooks: contains ipnyb notebooks for data exploration, loading, cleaning and analysis.
 - notebooks: contains ipnyb notebooks for data exploration, loading, cleaning and analysis.
 
 ### How to Run
