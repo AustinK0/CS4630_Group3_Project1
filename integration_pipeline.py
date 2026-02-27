@@ -25,7 +25,7 @@ import numpy as np
 @dataclass
 class IntegrationConfig:
     # Paths Philly 311 + Yelp clustered categories
-    complaint_path: str = "data/processed/philly_311_cleaned.csv"
+    complaint_path: str = "data/processed/philly_311_cleaned (1).csv"
     business_path: str = "data/processed/yelp_business_cleaned.json"
     output_path: str = "data/processed/final_integrated_dataset.csv"
 
@@ -35,6 +35,10 @@ class IntegrationConfig:
     complaint_lon_col: str = "lon"
     complaint_category_col: str = "service_category"
     complaint_text_col: str = "service_name"
+    # Optional complaint metadata (used for visualization)
+    complaint_subject_col: str = "subject"
+    complaint_sentiment_col: str = "sentiment_score_vader"
+    complaint_severity_col: str = "severity_label"
 
     # Business columns (Yelp)
     business_id_col: str = "business_id"
@@ -167,6 +171,7 @@ def integrate_datasets(cfg: IntegrationConfig) -> pd.DataFrame:
             cfg.complaint_lat_col,
             cfg.complaint_lon_col,
             cfg.complaint_category_col,
+            cfg.complaint_text_col,
         ],
         "Complaint",
     )
@@ -201,6 +206,16 @@ def integrate_datasets(cfg: IntegrationConfig) -> pd.DataFrame:
             row.get(cfg.complaint_text_col)
         )
     print("Complaint tokens: done")
+
+    # Optional metadata columns for downstream analysis
+    optional_complaint_cols = {
+        "complaint_subject": cfg.complaint_subject_col,
+        "complaint_sentiment": cfg.complaint_sentiment_col,
+        "complaint_severity": cfg.complaint_severity_col,
+    }
+    for display_name, col_name in optional_complaint_cols.items():
+        if col_name not in complaints.columns:
+            print(f"Warning: complaints missing optional column '{col_name}' ({display_name}).")
     
     print(f"Businesses: {len(businesses):,}")
     business_tokens = {}
@@ -268,6 +283,9 @@ def integrate_datasets(cfg: IntegrationConfig) -> pd.DataFrame:
                         "complaint_id": c_row[cfg.complaint_id_col],
                         "complaint_category": c_row.get(cfg.complaint_category_col),
                         "complaint_service": c_row.get(cfg.complaint_text_col),
+                        "complaint_subject": c_row.get(cfg.complaint_subject_col),
+                        "complaint_sentiment": c_row.get(cfg.complaint_sentiment_col),
+                        "complaint_severity": c_row.get(cfg.complaint_severity_col),
                         "complaint_lat": c_lat,
                         "complaint_lon": c_lon,
                         "business_id": business_ids[b_idx],
