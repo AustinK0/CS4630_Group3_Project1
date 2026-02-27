@@ -2,8 +2,6 @@
 
 ## Overview
 In this project, we want to integrate messy structured public service data with large-scale unstructured business data to uncover meaningful urban patterns. The goal is to build a pipeline that transforms raw data into a clean and integrated dataset for urban complaint analysis.
-## Overview
-In this project, we want to integrate messy structured public service data with large-scale unstructured business data to uncover meaningful urban patterns. The goal is to build a pipeline that transforms raw data into a clean and integrated dataset for urban complaint analysis.
 
 ### Datasets
 - Philly 311 Service Requests (CSV)
