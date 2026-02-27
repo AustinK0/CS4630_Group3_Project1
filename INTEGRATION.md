@@ -23,7 +23,7 @@ $$\text{score} = 0.6 \times \text{geo\_score} + 0.4 \times \text{similarity}$$
 Each complaint retains the top 3 highest scoring matches.
 
 ## Process Steps
-1. Load the cleaned Philly 311 CSV and Yelp JSONL files.
+1. Load the cleaned Philly 311 CSV and Yelp JSON files.
 2. Validate required columns.
 3. Build a grid index to speed up proximity search.
 4. Tokenize complaint and business text fields.
