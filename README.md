@@ -28,4 +28,4 @@ In this project, we want to integrate messy structured public service data with 
      8. analysis_visualization.ipynb 
 
 ### How to Comprehend Results
-add here 
+The integrated analysis revealed several key findings. A small set of neighborhoods accounts for a large share of all reports, and business density is positively related to complaint frequency. Clustering identified dominant complaint themes, specifically environmental and public safety issues, alongside smaller specialized groups. Complaint patterns vary by nearby business type, suggesting that local commercial content might influence reported issues. The sentiment analysis provided further insight, showing that environmental and public safety complaints seem to have more negative language. Severity comparisons across business groups highlight where serious complaints are concentrated. 
